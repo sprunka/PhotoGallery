@@ -14,6 +14,8 @@ Establish the core application architecture, directory structure, database conne
 1. **Initialize Project & Dependencies**
    - Configure `composer.json` with Slim 4, PHP-DI, PSR-7 implementations, `vlucas/phpdotenv`, and dev tools (PHPUnit, PHPStan, CS Fixer).
    - Create the base directory structure (`/public`, `/src`, `/protected`, `/templates`, `/config`).
+   - Create a `README.md` containing basic project and setup instructions.
+   - Create a `LICENSE` file.
 2. **Server & Routing Configuration**
    - Create root, `/public`, and `/protected` `.htaccess` files to route traffic to `index.php` and protect raw files.
    - Setup `public/index.php` with Slim App initialization and PHP-DI container.

@@ -5,9 +5,9 @@
 
 | | |
 |---|---|
-| **Document Status** | Draft v0.8.1 |
+| **Document Status** | Draft v0.8.2 |
 | **Created** | 2026-06-09 |
-| **Last Revised** | 2026-06-09 — v0.8.1 |
+| **Last Revised** | 2026-06-09 — v0.8.2 |
 | **Author** | Sean Prunka |
 | **Project** | Self-Hosted Photography Gallery |
 
@@ -170,6 +170,8 @@ The project follows the same front-controller pattern used across the developer'
   .env.example              ← Template for environment variables (committed)
   composer.json
   .htaccess                 ← Routes to /public
+  LICENSE                   ← License file
+  README.md                 ← Project documentation and setup instructions
   DESIGN.md                 ← This document
 ```
 
@@ -570,3 +572,4 @@ Items to resolve and move to the relevant section when decided:
 | 0.7 | 2026-06-09 | Sean Prunka | Refactored is_film_scan boolean to source_device_type ENUM (digital_camera, film_scan, mobile, unknown); added GPS unconditional strip from EXIF; added per-source-type pipeline behavior table; added HEIC rejection note; accounted for 1000D, T6i, R50, mobile devices as valid sources |
 | 0.8 | 2026-06-09 | Sean Prunka | Added salable ENUM field (none/snapshot/full) to photos table — placeholder only, no v1 functionality; documented in future print sales section |
 | 0.8.1 | 2026-06-09 | Sean Prunka | Added requirement for protected `.env` file for database credentials and `.env.example` template |
+| 0.8.2 | 2026-06-09 | Sean Prunka | Added `README.md` and `LICENSE` files to the project layout |
