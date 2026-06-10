@@ -545,7 +545,8 @@ Fields under consideration for public display:
 
 Items to resolve and move to the relevant section when decided:
 
-- [ ] **Templating engine** — Plain PHP templates vs Twig. Slim works with either.
+- [x] **Templating engine** — Twig selected. Supports robust inheritance and easy theme switching.
+- [x] **License** — MIT for code, All Rights Reserved for photography.
 - [ ] **Watermark** — Exact content, position, opacity, and size
 - [ ] **Display image max dimension** — 2048px is the starting default; revisit based on visual quality testing
 - [ ] **EXIF fields** — Which fields to display publicly on single photo view
