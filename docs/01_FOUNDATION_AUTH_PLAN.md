@@ -45,3 +45,7 @@ Establish the core application architecture, directory structure, database conne
 - Successful login redirects to an empty `/admin` dashboard.
 - `/protected` directory is inaccessible via browser.
 - Database credentials are successfully loaded from `.env` and `.env` is ignored by git.
+- **All code passes PHPStan level 6 analysis.**
+- **All code follows PSR-12 standards enforced by PHP-CS-Fixer.**
+- **Authentication tests pass with 90%+ coverage.**
+- **GitHub Actions CI/CD workflow is configured and passing.**
