@@ -100,15 +100,18 @@ The system is built for a single professional photographer who is also the sole 
 | `ext-gd` | * | GD2 driver for Intervention Image — host confirmed available, Imagick not available |
 | `ext-pdo` | * | Database access — prepared statements exclusively |
 | `ext-exif` | * | EXIF extraction from uploaded JPEGs — confirmed enabled; supports JPEG+TIFF, extended tags for major camera brands. **Note:** `exif.encode_unicode` is `ISO-8859-15` on host — EXIF strings must be passed through `mb_convert_encoding()` to UTF-8 before storage in `utf8mb4` MySQL columns |
+| `slim/twig-view` | 3.4.1 | Twig integration for Slim Framework |
+| `twig/twig` | 3.27.1 | Twig templating engine — selected for flexible inheritance and theme switching |
 
 **Development:**
 
 | Package | Version | Purpose |
 |---|---|---|
-| `phpunit/phpunit` | 12.5.29 | Unit testing |
+| `phpunit/phpunit` | 12.5.29 | Unit testing framework |
 | `squizlabs/php_codesniffer` | 4.0.1 | Code style linting |
-| `friendsofphp/php-cs-fixer` | 3.95.4 | Automated code style fixing |
-| `phpstan/phpstan` | 2.2.2 | Static analysis — enforced at strict level |
+| `friendsofphp/php-cs-fixer` | 3.95.4 | Automated code style fixing — PSR-12 + project rules |
+| `phpstan/phpstan` | 2.2.2 | Static analysis — strictly typed code verification |
+| `rector/rector` | 1.0.1 | Automated code modernization and safe refactoring |
 
 > **NOTE:** `ext-gd`, `ext-pdo`, and `ext-exif` are PHP extensions declared in `composer.json` as `"ext-gd": "*"` etc. — they are not Composer-installable packages. Confirm all three are available on the host before beginning image pipeline work.
 
