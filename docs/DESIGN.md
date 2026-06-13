@@ -157,7 +157,40 @@ Quality is not an afterthought — it is a first-class concern. The project empl
 
 Tests are executable specifications. They document expected behavior and catch regressions before production.
 
-### 3.2 Test Structure & Organization
+### 3.2 Code Style & Type Hinting Standards
+
+The following standards are non-negotiable and enforced both by static analysis (PHPStan) and automated formatting (PHP-CS-Fixer):
+
+**PHP Version & Syntax:**
+- Target version: PHP 8.5
+- Strict types required: Every file starts with `declare(strict_types=1);`
+- Type hints required on all parameters and return types
+- Use union types and nullable types correctly (`int|string`, `?string`)
+- No `var` keyword — use explicit `public`, `protected`, `private`
+- Use match expressions instead of switch statements where applicable
+
+**Naming Conventions:**
+- **Classes:** `PascalCase` (e.g., `ImageService`)
+- **Methods:** `camelCase` (e.g., `processUpload()`)
+- **Properties:** `camelCase` (e.g., `$imageHash`)
+- **Constants:** `UPPER_CASE` with underscores (e.g., `MAX_FILE_SIZE`)
+- **Files:** Must match class name exactly (e.g., `ImageService.php`)
+
+**Type Hinting:**
+- All properties must have explicit type declarations
+- All parameters must have explicit type hints
+- All return types must be specified (including `: void`)
+- Nullable types: use `?Type` when `null` is **explicitly allowed** — document why
+- Use proper exception types, not generic `\Exception`
+
+**Error Handling:**
+- Catch specific exception types — never catch bare `\Exception` or `\Throwable`
+- Exception messages must be clear and descriptive
+- Use exceptions for error handling, not return codes
+
+---
+
+### 3.3 Test Structure & Organization
 
 ```
 /tests/
