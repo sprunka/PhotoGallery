@@ -227,15 +227,19 @@ The following standards are non-negotiable and enforced both by static analysis 
 | **PHP-CS-Fixer 3.95.4** | Automated code style fixing — PSR-12 + project rules | `.php-cs-fixer.php` |
 | **Rector 1.0+** | Code modernization & safe refactoring — PHP 8.5 target | `rector.php` |
 
-### 3.4 PHPStan Configuration (Level 6)
+### 3.5 PHPStan Configuration (Level 6)
 
-PHPStan statically analyzes code at **level 6** (strict). This is the highest strictness — it requires:
+PHPStan statically analyzes code at **level 6** — the **highest/strictest level available**. This is non-negotiable and requires:
 
-- All parameters must be typed
-- All return types must be specified
-- No loose comparison (`==`) — use `===` exclusively
-- No mixed types unless explicitly required
-- Proper exception handling with specific catch types
+- All parameters **must** have type hints
+- All return types **must** be specified
+- No loose comparison (`==`) — use strict `===` exclusively
+- No `mixed` types unless explicitly required and justified
+- Proper exception handling with specific catch types (no generic `\Exception` or `\Throwable`)
+- All array keys and values properly typed (no generic `array` declarations)
+- No undefined methods or properties on objects
+
+Any PHPStan errors at level 6 are **build-blocking** — the CI/CD pipeline will fail and prevent merges.
 
 Configuration is in `phpstan.neon`:
 
@@ -264,20 +268,31 @@ CI/CD will fail on any PHPStan errors — this is non-negotiable.
 
 Code must pass PSR-12 coding standards + project-specific rules. Configuration is in `.php-cs-fixer.php`:
 
-**Rules:**
-- PSR-12 baseline
+**Mandatory Requirements (from PSR-12 + project standards):**
+- `declare(strict_types=1);` is **required** at the top of every PHP file
+- Indentation: 4 spaces, never tabs
+- Line endings: Unix-style (LF only)
 - Single-line array bracket notation: `[1, 2, 3]` not `array(1, 2, 3)`
-- Method chaining on separate lines for readability
+- Organized imports: alphabetical order, no leading backslash, one import per statement
 - No trailing commas in single-line arrays
-- Declare strict types at top of every file
-- Organized imports (alphabetical, no leading backslash)
+- Method chaining on separate lines for readability
+- Class structure order (from phpcs.xml model):
+  1. `uses` / imports
+  2. `enum` cases
+  3. constants
+  4. static properties
+  5. properties
+  6. constructor
+  7. static constructors
+  8. methods
+  9. magic methods
 
 Run locally: `vendor/bin/php-cs-fixer fix src --dry-run --diff` (preview changes)
 Apply: `vendor/bin/php-cs-fixer fix src`
 
 CI/CD will report violations and block merges if unfixed.
 
-### 3.6 Rector Configuration
+### 3.7 Rector Configuration
 
 Rector performs safe, automated code modernization. It respects PHP 8.5 as the target version and applies safe transformations:
 
