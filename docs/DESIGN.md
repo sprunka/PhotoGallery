@@ -218,7 +218,7 @@ The following standards are non-negotiable and enforced both by static analysis 
 - Fixtures stored under `/tests/Fixtures/` — reused across tests via factories
 - Database tests use transactions and rollback — no test data persistence
 
-### 3.3 Testing Tools & Configuration
+### 3.4 Testing Tools & Configuration
 
 | Tool | Purpose | Config File |
 |---|---|---|
@@ -322,7 +322,7 @@ return RectorConfig::configure()
 - Developer responsibility: run Rector locally and commit the changes
 - This enforces intentional modernization, not auto-fixing in CI
 
-### 3.7 Code Coverage
+### 3.8 Code Coverage
 
 Unit test coverage must meet **80% minimum** across all source code. Coverage is verified in CI/CD:
 
@@ -338,7 +338,7 @@ Enforcement:
 
 Coverage reports are generated in the `coverage/` directory (excluded from Git). High-risk areas (image pipeline, auth, DB operations) target 90%+ coverage; straightforward routes may be lower if behavior is obvious.
 
-### 3.8 Running Tests Locally
+### 3.9 Running Tests Locally
 
 ```bash
 # Run all tests
@@ -377,7 +377,7 @@ Add these as Composer scripts in `composer.json`:
 }
 ```
 
-### 3.9 CI/CD Pipeline - Quality Gates
+### 3.10 CI/CD Pipeline - Quality Gates
 
 The GitHub Actions workflow (`.github/workflows/php.yml`) enforces all quality gates automatically:
 
@@ -388,9 +388,9 @@ The GitHub Actions workflow (`.github/workflows/php.yml`) enforces all quality g
 5. **PHP-CS-Fixer check** — code style violations block the build
 6. **Rector check** — modernization changes detected → build fail (developer must fix locally)
 
-See section 3.10 for detailed workflow configuration.
+See section 3.11 for detailed workflow configuration.
 
-### 3.10 CI/CD Workflow Configuration
+### 3.11 CI/CD Workflow Configuration
 
 The GitHub Actions workflow in `.github/workflows/php.yml` orchestrates all quality checks. It runs on:
 - Push to `deliverable` branch
