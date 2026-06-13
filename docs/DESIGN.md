@@ -17,16 +17,17 @@
 
 1. [Project Overview](#1-project-overview)
 2. [Technical Stack](#2-technical-stack)
-3. [Directory & File Structure](#3-directory--file-structure)
-4. [Image Pipeline](#4-image-pipeline)
-5. [Database Design](#5-database-design)
-6. [Routing](#6-routing)
-7. [Security](#7-security)
-8. [Admin Interface](#8-admin-interface)
-9. [Public Gallery — UX & Display](#9-public-gallery--ux--display)
-10. [Future Considerations](#10-future-considerations)
-11. [Open Questions & Decisions Pending](#11-open-questions--decisions-pending)
-12. [Revision History](#12-revision-history)
+3. [Testing & Quality Assurance](#3-testing--quality-assurance)
+4. [Directory & File Structure](#4-directory--file-structure)
+5. [Image Pipeline](#5-image-pipeline)
+6. [Database Design](#6-database-design)
+7. [Routing](#7-routing)
+8. [Security](#8-security)
+9. [Admin Interface](#9-admin-interface)
+10. [Public Gallery — UX & Display](#10-public-gallery--ux--display)
+11. [Future Considerations](#11-future-considerations)
+12. [Open Questions & Decisions Pending](#12-open-questions--decisions-pending)
+13. [Revision History](#13-revision-history)
 
 ---
 
@@ -393,7 +394,7 @@ The project follows the same front-controller pattern used across the developer'
   DESIGN.md                 ← This document
 ```
 
-### 3.2 `.htaccess` — Root Level
+### 4.2 `.htaccess` — Root Level
 
 Identical pattern to developer's existing Slim applications:
 
@@ -403,7 +404,7 @@ RewriteRule ^$ public/ [L]
 RewriteRule (.*) public/$1 [L]
 ```
 
-### 3.3 `.htaccess` — `/public` Level
+### 4.3 `.htaccess` — `/public` Level
 
 ```apache
 RewriteEngine On
@@ -412,7 +413,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [QSA,L]
 ```
 
-### 3.4 `.htaccess` — `/protected` Level
+### 4.4 `.htaccess` — `/protected` Level
 
 Belt-and-suspenders protection. The directory is outside the web root by design, but this provides an explicit additional denial layer:
 
@@ -423,9 +424,9 @@ Deny from all
 
 ---
 
-## 4. Image Pipeline
+## 5. Image Pipeline
 
-### 4.1 Upload Flow
+### 5.1 Upload Flow
 
 1. Admin uploads JPEG via authenticated admin interface
 2. Original JPEG is written to `/protected/originals/{user_id}/{image_hash}.jpg`
@@ -450,7 +451,7 @@ Deny from all
 
 > **NOTE:** `image_hash` is generated from file contents (SHA-256), not from filename or timestamp. This ensures deduplication and makes paths non-guessable.
 
-### 4.2 Display Image Specifications
+### 5.2 Display Image Specifications
 
 > **NOTE:** These are starting defaults. They are configurable and subject to revision.
 
@@ -462,7 +463,7 @@ Deny from all
 | **Color profile** | sRGB (converted from any input profile) |
 | **Watermark** | Burned in at generation time — position, opacity, and content TBD |
 
-### 4.3 Original File Access
+### 5.3 Original File Access
 
 - Originals are never linked, referenced, or mentioned in any public-facing HTML
 - Originals are accessible only via an authenticated Slim route
@@ -472,7 +473,7 @@ Deny from all
 
 > **NOTE:** In v1 the only authorized user is the global admin. Future versions may extend this to per-user authorization for their own uploads.
 
-### 4.4 Watermark Specification
+### 5.4 Watermark Specification
 
 > **⚠ TO BE DEFINED** — Developer to specify watermark content, position, size, and opacity.
 
@@ -483,13 +484,13 @@ Deny from all
 
 ---
 
-## 5. Database Design
+## 6. Database Design
 
 > **NOTE:** Schema is a starting point. Column types and indexes will be refined during implementation.
 >
 > **NOTE:** Database connection details (server, username, password, database name) must be read from a protected `.env` file. An `.env.example` must be provided in the repository.
 
-### 5.1 Tables Overview
+### 6.1 Tables Overview
 
 | Table | Purpose |
 |---|---|
@@ -499,7 +500,7 @@ Deny from all
 | `photo_album` | Junction table — photo can belong to multiple albums |
 | `sessions` | Server-side session storage (optional — may use PHP native sessions) |
 
-### 5.2 `users`
+### 6.2 `users`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -565,9 +566,9 @@ Deny from all
 
 ---
 
-## 6. Routing
+## 7. Routing
 
-### 6.1 Public Routes
+### 7.1 Public Routes
 
 | Route | Method | Description |
 |---|---|---|
@@ -577,7 +578,7 @@ Deny from all
 | `/photo/{hash}` | GET | Single photo detail view |
 | `/about` | GET | About page (optional, TBD) |
 
-### 6.2 Admin Routes
+### 7.2 Admin Routes
 
 > All admin routes are protected by `AuthMiddleware`. Unauthenticated requests redirect to `/admin/login`.
 
@@ -603,9 +604,9 @@ Deny from all
 
 ---
 
-## 7. Security
+## 8. Security
 
-### 7.1 File Protection
+### 8.1 File Protection
 
 - Original files live in `/protected/` which is outside the document root by directory structure
 - `/protected/.htaccess` adds explicit `Deny from all` as belt-and-suspenders
@@ -613,7 +614,7 @@ Deny from all
 - No HTML anywhere in the application ever references an original file path
 - Original files are served only via PHP stream through an authenticated route
 
-### 7.2 Authentication
+### 8.2 Authentication
 
 - Passwords stored as bcrypt hashes via `password_hash(PASSWORD_BCRYPT)`
 - Sessions use PHP native session handling with regenerated IDs on login
@@ -621,7 +622,7 @@ Deny from all
 - No remember-me / persistent login in v1
 - Failed login attempts are rate-limited — TBD implementation
 
-### 7.3 Input Handling
+### 8.3 Input Handling
 
 - All database queries use PDO prepared statements — no string interpolation, ever
 - All output is escaped via `htmlspecialchars()` or template engine auto-escaping
@@ -629,7 +630,7 @@ Deny from all
 - CSRF protection on all state-changing POST/DELETE routes
 - Upload directory is never the web root
 
-### 7.4 HTTP Security Headers
+### 8.4 HTTP Security Headers
 
 > To be implemented via Slim middleware on all responses.
 
@@ -640,16 +641,16 @@ Deny from all
 
 ---
 
-## 8. Admin Interface
+## 9. Admin Interface
 
-### 8.1 Principles
+### 9.1 Principles
 
 - Functional over decorative — the admin UI is a tool, not a showcase
 - Dark theme consistent with the public gallery
 - Single-user optimized — no multi-user workflow complexity in v1
 - Fast to use — uploading and organizing photos should be efficient, not ceremonial
 
-### 8.2 Upload Workflow
+### 9.2 Upload Workflow
 
 - Single or multi-file upload supported
 - EXIF data extracted automatically on upload (date taken, camera, lens, exposure data)
@@ -657,7 +658,7 @@ Deny from all
 - Album assignment at upload time or via edit — photos can belong to multiple albums
 - Upload progress indicator for large files
 
-### 8.3 Photo Management
+### 9.3 Photo Management
 
 - List view with thumbnail, title, album(s), upload date, published status
 - Inline publish/unpublish toggle
@@ -665,7 +666,7 @@ Deny from all
 - View original: authenticated stream, opens in new tab — UX TBD
 - Delete: removes display derivative, removes original, removes DB record — with confirmation
 
-### 8.4 Album Management
+### 9.4 Album Management
 
 - Create, edit, delete albums
 - Set cover photo per album
@@ -675,9 +676,9 @@ Deny from all
 
 ---
 
-## 9. Public Gallery — UX & Display
+## 10. Public Gallery — UX & Display
 
-### 9.1 Design Principles
+### 10.1 Design Principles
 
 - The photographs are the UI — chrome is minimal and secondary
 - Dark background throughout — the photographs define the visual experience
@@ -685,14 +686,14 @@ Deny from all
 - Navigation is present but unobtrusive
 - Typography is clean, restrained, and serves the images
 
-### 9.2 Album Index Page
+### 10.2 Album Index Page
 
 - Grid of album cover images
 - Album title on hover or below image — TBD
 - Click navigates to album view
 - Pagination TBD — threshold depends on total album count
 
-### 9.3 Album View Page
+### 10.3 Album View Page
 
 - Grid of watermarked display images
 - Click on image opens single photo view
@@ -700,7 +701,7 @@ Deny from all
 - No right-click suppression — this is security theater and will not be implemented
 - No size picker, no download link, no original reference of any kind in the HTML
 
-### 9.4 Single Photo View
+### 10.4 Single Photo View
 
 - Large display image centered on dark background
 - Title and caption if present
@@ -708,7 +709,7 @@ Deny from all
 - Previous / next navigation within album
 - No social sharing, no download, no external links in v1
 
-### 9.5 Comments
+### 10.5 Comments
 
 > **⚠ DEFERRED** — Nice to have, not in v1.
 
@@ -718,11 +719,11 @@ Deny from all
 
 ---
 
-## 10. Future Considerations
+## 11. Future Considerations
 
 > These items are out of scope for v1 but the architecture must not preclude them.
 
-### 10.1 Print Sales
+### 11.1 Print Sales
 
 - Whitewall via Shopify Starter ($5/month) is the preferred path when pursued
 - Integration model: Shopify Buy Button embedded per photo, links to product page
@@ -732,7 +733,7 @@ Deny from all
 - `salable` field already present in schema — classification can begin immediately, enforcement added when print sales are built
 - `salable = 'snapshot'` implies a maximum print dimension cap to be defined when the print sales integration is designed
 
-### 10.2 EXIF Display
+### 11.2 EXIF Display
 
 Fields under consideration for public display:
 - Camera make and model
@@ -741,17 +742,17 @@ Fields under consideration for public display:
 - Date taken
 - Location — only if photographer explicitly enables per image
 
-### 10.3 Additional Admin Users
+### 11.3 Additional Admin Users
 
 - Role-based access: `superadmin` can see all originals; `admin` can see own uploads only
 - Per-user upload folders already accounted for in schema: `/protected/originals/{user_id}/`
 
-### 10.4 Archive Access UI
+### 11.4 Archive Access UI
 
 - Authenticated interface for browsing and downloading own originals
 - May be a separate route group from the gallery admin
 
-### 10.5 Lightroom Integration
+### 11.5 Lightroom Integration
 
 > **SPECULATIVE** — Low priority.
 
@@ -759,7 +760,7 @@ Fields under consideration for public display:
 
 ---
 
-## 11. Open Questions & Decisions Pending
+## 12. Open Questions & Decisions Pending
 
 Items to resolve and move to the relevant section when decided:
 
@@ -778,7 +779,7 @@ Items to resolve and move to the relevant section when decided:
 
 ---
 
-## 12. Revision History
+## 13. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
@@ -792,3 +793,4 @@ Items to resolve and move to the relevant section when decided:
 | 0.8 | 2026-06-09 | Sean Prunka | Added salable ENUM field (none/snapshot/full) to photos table — placeholder only, no v1 functionality; documented in future print sales section |
 | 0.8.1 | 2026-06-09 | Sean Prunka | Added requirement for protected `.env` file for database credentials and `.env.example` template |
 | 0.8.2 | 2026-06-09 | Sean Prunka | Added `README.md` and `LICENSE` files to the project layout |
+| 0.9 | 2026-06-13 | Sean Prunka | Added comprehensive **Testing & Quality Assurance** section covering TDD/code-first pragmatism; PHPStan level 6; 80% code coverage target; PHP-CS-Fixer and Rector configuration; CI/CD quality gates; test structure and organization; Composer scripts for local development |
