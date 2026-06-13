@@ -139,9 +139,227 @@ The system is built for a single professional photographer who is also the sole 
 
 ---
 
-## 3. Directory & File Structure
+## 3. Testing & Quality Assurance
 
-### 3.1 Project Root Layout
+### 3.1 Testing Philosophy
+
+Quality is not an afterthought — it is a first-class concern. The project employs a pragmatic hybrid testing approach:
+
+- **TDD (Test-Driven Development)** for complex logic: image pipeline, format parsing, EXIF handling, authentication
+- **Code-First** for straightforward CRUD operations and UI routes where behavior is obvious
+- **Unit Tests** for isolated service logic and edge cases
+- **Feature Tests** for integration workflows (upload → derivative generation → database → retrieval)
+- **Minimum Coverage Target:** 80% — enforced in CI/CD
+
+Tests are executable specifications. They document expected behavior and catch regressions before production.
+
+### 3.2 Test Structure & Organization
+
+```
+/tests/
+  /Unit/
+    Controllers/
+    Services/
+    Models/
+    Middleware/
+  /Feature/
+    UploadImageTest.php
+    GalleryNavigationTest.php
+    AuthenticationTest.php
+  /Fixtures/
+    images/
+      sample.jpg
+      sample_exif.jpg
+    factories/
+  ConfigTestCase.php          ← Base test class with shared setup
+```
+
+**Naming Conventions:**
+
+- Test classes: `{TargetClass}Test` (e.g., `ImageServiceTest` tests `ImageService`)
+- Test methods: `test_{Scenario}_{Expected}` (e.g., `test_uploadsJpeg_createsDisplayDerivative`)
+- Fixtures stored under `/tests/Fixtures/` — reused across tests via factories
+- Database tests use transactions and rollback — no test data persistence
+
+### 3.3 Testing Tools & Configuration
+
+| Tool | Purpose | Config File |
+|---|---|---|
+| **PHPUnit 12.5.29** | Unit & feature testing framework | `phpunit.xml` |
+| **PHPStan 2.2.2 (Level 6)** | Static analysis — catches type errors before runtime | `phpstan.neon` |
+| **PHP-CS-Fixer 3.95.4** | Automated code style fixing — PSR-12 + project rules | `.php-cs-fixer.php` |
+| **Rector 1.0+** | Code modernization & safe refactoring — PHP 8.5 target | `rector.php` |
+
+### 3.4 PHPStan Configuration (Level 6)
+
+PHPStan statically analyzes code at **level 6** (strict). This is the highest strictness — it requires:
+
+- All parameters must be typed
+- All return types must be specified
+- No loose comparison (`==`) — use `===` exclusively
+- No mixed types unless explicitly required
+- Proper exception handling with specific catch types
+
+Configuration is in `phpstan.neon`:
+
+```neon
+includes:
+  - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+
+parameters:
+  level: 6
+  paths:
+    - src
+    - tests
+  excludePaths:
+    - vendor
+  autoload_directories:
+    - config
+  checkMissingIterableValueType: false
+  checkGenericClassInNonGenericObjectType: false
+```
+
+Run locally: `vendor/bin/phpstan analyze src`
+
+CI/CD will fail on any PHPStan errors — this is non-negotiable.
+
+### 3.5 PHP-CS-Fixer Configuration
+
+Code must pass PSR-12 coding standards + project-specific rules. Configuration is in `.php-cs-fixer.php`:
+
+**Rules:**
+- PSR-12 baseline
+- Single-line array bracket notation: `[1, 2, 3]` not `array(1, 2, 3)`
+- Method chaining on separate lines for readability
+- No trailing commas in single-line arrays
+- Declare strict types at top of every file
+- Organized imports (alphabetical, no leading backslash)
+
+Run locally: `vendor/bin/php-cs-fixer fix src --dry-run --diff` (preview changes)
+Apply: `vendor/bin/php-cs-fixer fix src`
+
+CI/CD will report violations and block merges if unfixed.
+
+### 3.6 Rector Configuration
+
+Rector performs safe, automated code modernization. It respects PHP 8.5 as the target version and applies safe transformations:
+
+- Variable type narrowing
+- Property promotion
+- Named arguments where beneficial
+- Removal of dead code
+- Safe deprecation fixes
+
+Configuration is in `rector.php`:
+
+```php
+use Rector\Config\RectorConfig;
+use Rector\Set\ValueObject\LevelSetList;
+
+return RectorConfig::configure()
+    ->withPaths([__DIR__ . '/src', __DIR__ . '/tests'])
+    ->withSkip([__DIR__ . '/vendor'])
+    ->withPhpVersion(\Rector\ValueObject\PhpVersion::PHP_85)
+    ->withSets([LevelSetList::UP_TO_PHP_85]);
+```
+
+**Workflow:**
+- Developers run Rector locally: `vendor/bin/rector process src --dry-run` (preview)
+- Apply changes: `vendor/bin/rector process src`
+- CI/CD runs Rector as a **check-only** — if changes are detected, CI fails with a message indicating what needs to be fixed
+- Developer responsibility: run Rector locally and commit the changes
+- This enforces intentional modernization, not auto-fixing in CI
+
+### 3.7 Code Coverage
+
+Unit test coverage must meet **80% minimum** across all source code. Coverage is verified in CI/CD:
+
+```bash
+vendor/bin/phpunit --coverage-html coverage/
+```
+
+Enforcement:
+- Line coverage: 80% minimum
+- Function coverage: 80% minimum
+- Class coverage: 80% minimum
+- Branches: 75% minimum (slightly relaxed for complex conditionals)
+
+Coverage reports are generated in the `coverage/` directory (excluded from Git). High-risk areas (image pipeline, auth, DB operations) target 90%+ coverage; straightforward routes may be lower if behavior is obvious.
+
+### 3.8 Running Tests Locally
+
+```bash
+# Run all tests
+composer run-script test
+
+# Run with coverage report
+composer run-script test:coverage
+
+# Run a single test file
+vendor/bin/phpunit tests/Unit/Services/ImageServiceTest.php
+
+# Run a specific test method
+vendor/bin/phpunit --filter test_uploadsJpeg_createsDisplayDerivative
+
+# Check code style
+vendor/bin/php-cs-fixer fix src --dry-run --diff
+
+# Static analysis
+vendor/bin/phpstan analyze src
+
+# Rector check
+vendor/bin/rector process src --dry-run
+```
+
+Add these as Composer scripts in `composer.json`:
+
+```json
+"scripts": {
+  "test": "phpunit",
+  "test:coverage": "phpunit --coverage-html coverage/",
+  "lint": "php-cs-fixer fix src --dry-run",
+  "format": "php-cs-fixer fix src",
+  "analyse": "phpstan analyze src",
+  "rector:check": "rector process src --dry-run",
+  "rector:fix": "rector process src"
+}
+```
+
+### 3.9 CI/CD Pipeline - Quality Gates
+
+The GitHub Actions workflow (`.github/workflows/php.yml`) enforces all quality gates automatically:
+
+1. **Composer validation** — `composer.json` and `composer.lock` are valid
+2. **Dependencies installed** — all packages resolved without conflicts
+3. **PHPUnit tests** — 100% pass rate required, 80% coverage minimum
+4. **PHPStan analysis** — level 6, zero errors allowed
+5. **PHP-CS-Fixer check** — code style violations block the build
+6. **Rector check** — modernization changes detected → build fail (developer must fix locally)
+
+See section 3.10 for detailed workflow configuration.
+
+### 3.10 CI/CD Workflow Configuration
+
+The GitHub Actions workflow in `.github/workflows/php.yml` orchestrates all quality checks. It runs on:
+- Push to `deliverable` branch
+- Pull requests targeting `deliverable`
+- Manual trigger via workflow_dispatch (optional)
+
+**Jobs:**
+
+- **Composer Validation & Dependencies** — Ensure integrity
+- **PHPUnit Tests + Coverage** — Verify correctness, enforce coverage threshold
+- **PHPStan (Level 6)** — Static analysis with strict rules
+- **PHP-CS-Fixer** — Style violations reported and block merge
+- **Rector Check** — Detect modernization opportunities (non-blocking, informational)
+
+Failure in any gate stops the build. All gates must pass before a PR can merge.
+
+---
+
+## 4. Directory & File Structure
+
+### 4.1 Project Root Layout
 
 The project follows the same front-controller pattern used across the developer's existing Slim applications on this host. Everything outside `/public` is unreachable via HTTP.
 
