@@ -5,9 +5,9 @@
 
 | | |
 |---|---|
-| **Document Status** | Draft v0.9 |
+| **Document Status** | Draft v1.0 |
 | **Created** | 2026-06-09 |
-| **Last Revised** | 2026-06-13 — v0.9 |
+| **Last Revised** | 2026-06-13 — v1.0 |
 | **Author** | Sean Prunka |
 | **Project** | Self-Hosted Photography Gallery |
 
@@ -229,7 +229,9 @@ The following standards are non-negotiable and enforced both by static analysis 
 
 ### 3.5 PHPStan Configuration (Level 6)
 
-PHPStan statically analyzes code at **level 6** — the **highest/strictest level available**. This is non-negotiable and requires:
+PHPStan statically analyzes code at **level 6**. PHPStan has 10 levels (0–9); level 6 is the point at which strict type checking is enforced, aligned with PSR-12. It is not the maximum level — it is the minimum level at which the codebase is considered strictly typed. This is a deliberate choice: strict enough to catch real bugs, without the noise of levels 7–9 which require increasingly exhaustive generics and template annotations disproportionate to the benefit for a project of this scope.
+
+Level 6 requires:
 
 - All parameters **must** have type hints
 - All return types **must** be specified
@@ -264,7 +266,7 @@ Run locally: `vendor/bin/phpstan analyze src`
 
 CI/CD will fail on any PHPStan errors — this is non-negotiable.
 
-### 3.5 PHP-CS-Fixer Configuration
+### 3.6 PHP-CS-Fixer Configuration
 
 Code must pass PSR-12 coding standards + project-specific rules. Configuration is in `.php-cs-fixer.php`:
 
@@ -433,7 +435,7 @@ The project follows the same front-controller pattern used across the developer'
     /Services/
     /Models/
     /Middleware/
-  /templates/               ← HTML templates (Twig or plain PHP — TBD)
+  /templates/               ← Twig templates
   /config/                  ← Configuration files
   /vendor/                  ← Composer dependencies
   .env                      ← Protected environment variables (NOT committed)
@@ -564,7 +566,7 @@ Deny from all
 | `last_login_at` | `TIMESTAMP` | Nullable |
 | `is_active` | `TINYINT(1)` | Soft disable without deletion |
 
-### 5.3 `albums`
+### 6.3 `albums`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -580,7 +582,7 @@ Deny from all
 | `created_at` | `TIMESTAMP` | DEFAULT CURRENT_TIMESTAMP |
 | `updated_at` | `TIMESTAMP` | ON UPDATE CURRENT_TIMESTAMP |
 
-### 5.4 `photos`
+### 6.4 `photos`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -605,7 +607,7 @@ Deny from all
 | `is_published` | `TINYINT(1)` | 0 = not visible publicly |
 | `salable` | `ENUM('none','snapshot','full')` | Print sale eligibility — **not implemented in v1, no functional effect yet.** `none` = never for sale; `snapshot` = small prints only (up to approx. 8×10 or equivalent); `full` = full art prints including poster sizes. Exists to classify images now so the data is clean when print sales are implemented. Default `none`. |
 
-### 5.5 `photo_album`
+### 6.5 `photo_album`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -845,3 +847,4 @@ Items to resolve and move to the relevant section when decided:
 | 0.8.1 | 2026-06-09 | Sean Prunka | Added requirement for protected `.env` file for database credentials and `.env.example` template |
 | 0.8.2 | 2026-06-09 | Sean Prunka | Added `README.md` and `LICENSE` files to the project layout |
 | 0.9 | 2026-06-13 | Sean Prunka | Added comprehensive **Testing & Quality Assurance** (section 3) with testing philosophy (TDD/pragmatic hybrid), code style standards (strict types, naming conventions, type hinting, error handling) aligned with Intervention/AGENTS guidelines, test structure, PHPStan level 6, 80% coverage target, PHP-CS-Fixer and Rector configuration, CI/CD quality gates, and Composer scripts. Renumbered all subsequent sections (4-13). |
+| 1.0 | 2026-06-13 | Sean Prunka | Fixed section 6 subsection numbering (5.3–5.5 → 6.3–6.5); fixed duplicate 3.5 heading (PHP-CS-Fixer → 3.6); fixed PHPStan level description (not maximum, level 6 is where strict typing begins); updated /templates/ directory comment from TBD to Twig |
