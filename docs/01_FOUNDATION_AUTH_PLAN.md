@@ -31,9 +31,13 @@ Establish the core application architecture, directory structure, database conne
    - Implement `AuthMiddleware` to protect `/admin` routes.
    - Create login and logout routes and controllers.
    - Implement session management for authenticated users.
+   - **Write comprehensive tests** for authentication logic (TDD approach): test successful login, failed login, session timeout, logout. Target 90%+ coverage for auth module.
 5. **Templating Foundation**
    - Decide on and integrate a templating engine (e.g., plain PHP or Twig) into the DI container.
    - Create base layouts for the Admin interface.
+6. **Code Quality & CI/CD**
+   - Setup GitHub Actions workflow (`.github/workflows/php.yml`) to enforce all quality gates on push/PR to `deliverable` branch.
+   - Configure Composer scripts for local development: `test`, `test:coverage`, `lint`, `format`, `analyse`, `rector:check`, `rector:fix`.
 
 ## Acceptance Criteria
 - Navigating to `/` returns a basic placeholder page.
