@@ -12,8 +12,9 @@ Establish the core application architecture, directory structure, database conne
 
 ## Tasks
 1. **Initialize Project & Dependencies**
-   - Configure `composer.json` with Slim 4, PHP-DI, PSR-7 implementations, `vlucas/phpdotenv`, and dev tools (PHPUnit, PHPStan, CS Fixer).
-   - Create the base directory structure (`/public`, `/src`, `/protected`, `/templates`, `/config`).
+   - Configure `composer.json` with Slim 4, PHP-DI, PSR-7 implementations, `vlucas/phpdotenv`, and dev tools (PHPUnit 12.5.29, PHPStan 2.2.2 level 6, PHP-CS-Fixer 3.95.4, Rector 1.0+).
+   - Create testing configuration files: `phpunit.xml`, `phpstan.neon`, `.php-cs-fixer.php`, `rector.php`.
+   - Create the base directory structure (`/public`, `/src`, `/protected`, `/templates`, `/config`, `/tests/Unit`, `/tests/Feature`, `/tests/Fixtures`).
    - Create a `README.md` containing basic project and setup instructions.
    - Create a `LICENSE` file.
 2. **Server & Routing Configuration**
