@@ -5,9 +5,9 @@
 
 | | |
 |---|---|
-| **Document Status** | Draft v0.8.2 |
+| **Document Status** | Draft v0.9 |
 | **Created** | 2026-06-09 |
-| **Last Revised** | 2026-06-09 — v0.8.2 |
+| **Last Revised** | 2026-06-13 — v0.9 |
 | **Author** | Sean Prunka |
 | **Project** | Self-Hosted Photography Gallery |
 
